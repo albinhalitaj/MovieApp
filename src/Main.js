@@ -7,10 +7,14 @@ import Discover from './screens/Discover';
 import Watchlist from './screens/Watchlist';
 import Settings from './screens/Settings';
 import { StyleSheet } from 'react-native';
+import { ThemeContext } from './utils/ThemeManager';
+
 
 const Tab = createBottomTabNavigator();
 
 function Main() {
+
+    const {theme} = React.useContext(ThemeContext)
 
     return (
         <NavigationContainer>
@@ -30,14 +34,14 @@ function Main() {
                     }
                     return <Icon name={iconName} size={size} color={color} />;
                 },
-                tabBarActiveTintColor: 'white',
+                tabBarActiveTintColor: theme === 'dark' ? 'white' : 'red',
                 tabBarInactiveTintColor: 'gray',
                 tabBarStyle: [
                     {
-                      "display": "flex",
-                      "backgroundColor": "#181818",
-                      "borderTopColor": "#181818",
-                      "height": 60
+                    "display": "flex",
+                    "backgroundColor": theme === 'dark' ? '#181818' : 'white',
+                    "borderTopColor": theme === 'dark' ? '#181818' : 'white',
+                    "height": 60
                     },
                     null
                 ]
@@ -47,8 +51,7 @@ function Main() {
                     tabBarLabelStyle: styles.tabLabel
                 }} name="Home" component={Home} />
                 <Tab.Screen options={{
-                    tabBarLabelStyle: styles.tabLabel,
-                    unmountOnBlur: true
+                    tabBarLabelStyle: styles.tabLabel
                 }} name="Discover" component={Discover} />
                 <Tab.Screen options={{
                     tabBarBadge: 3,
