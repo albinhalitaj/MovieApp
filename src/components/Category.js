@@ -10,7 +10,7 @@ function Category({name}) {
             <Text style={styles.categoryName}>
                 {name}
             </Text>
-            <Pressable onPress={() => navigation.navigate('Watchlist')}>
+            <Pressable onPress={() => navigation.navigate('ViewAll')}>
                 <Text style={styles.seeAll}>See all</Text>   
             </Pressable>
         </View>

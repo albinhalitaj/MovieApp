@@ -1,6 +1,7 @@
 export const GET_NOWPLAYING_MOVIES = 'GET_NOWPLAYING_MOVIES';
 export const GET_TOPRATED_MOVIES = 'GET_TOPRATED_MOVIES';
 export const GET_UPCOMMING_MOVIES = 'GET_UPCOMMING_MOVIES';
+export const GET_MOVIE_CAST = 'GET_MOVIE_CAST'
 
 const API_KEY = "88e25c44663a2b555750d84d2d4dba2e"
 const API_URL = `https://api.themoviedb.org/3/movie`;
@@ -59,6 +60,22 @@ export const getUpComming = () => {
                 type: GET_UPCOMMING_MOVIES,
                 payload: upComming.results
             });
+        }
+    } catch (error) {
+       console.log(error) 
+    }
+}
+
+
+export const getMovieCast = (movieId) => {
+    try {
+        return async dispatch => {
+            const cast = await fetch(`${API_URL}/${movieId}/credits?api_key=${API_KEY}&language=en-US`);
+            const castJson = await cast.json();
+            dispatch({
+                type: GET_MOVIE_CAST,
+                payload: castJson.cast
+            })
         }
     } catch (error) {
        console.log(error) 

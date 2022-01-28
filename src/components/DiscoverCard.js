@@ -1,13 +1,13 @@
 import { useNavigation } from '@react-navigation/core'
 import React from 'react'
-import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native'
+import { ImageBackground, Pressable, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 
 function DiscoverCard({movie}) {
     const navigator = useNavigation();
 
     return (
-        <View>
+        <TouchableWithoutFeedback onPress={() => navigator.navigate('MovieDetails',{movie})}>
             <View key={movie.id} style={styles.card}>
                 <ImageBackground style={styles.poster} imageStyle={styles.backgroundStyle} source={{uri: `https://image.tmdb.org/t/p/w342${movie.poster_path}`}} />
                 <Pressable style={styles.add} onPress={() => navigator.navigate('Watchlist')}>
@@ -27,7 +27,7 @@ function DiscoverCard({movie}) {
                     }) }
                 </Text>
             </View>
-        </View>
+        </TouchableWithoutFeedback>
     )
 }
 

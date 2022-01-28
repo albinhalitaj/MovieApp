@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {createNativeStackNavigator } from '@react-navigation/native-stack'
 import Icon from 'react-native-vector-icons/Feather';
 import Home from './screens/Home';
 import Discover from './screens/Discover';
@@ -8,9 +9,25 @@ import Watchlist from './screens/Watchlist';
 import Settings from './screens/Settings';
 import { StyleSheet } from 'react-native';
 import { ThemeContext } from './utils/ThemeManager';
+import MovieDetails from './screens/MovieDetails';
+import ViewAll from './screens/ViewAll';
+import Loader from './components/Loader';
 
 
 const Tab = createBottomTabNavigator();
+
+const HomeStack = createNativeStackNavigator();
+
+function HomeStackScreen() {
+    return (
+        <HomeStack.Navigator>
+            <HomeStack.Screen name="Splash" component={Loader} options={{headerShown: false}} />
+            <HomeStack.Screen name="Main" component={Home} options={{headerShown: false}} />
+            <HomeStack.Screen name="ViewAll" component={ViewAll} options={{headerShown: false}} />
+            <HomeStack.Screen name="MovieDetails" component={MovieDetails} options={{headerShown: false}} />
+        </HomeStack.Navigator>
+    )
+}
 
 function Main() {
 
@@ -49,12 +66,11 @@ function Main() {
             >
                 <Tab.Screen options={{
                     tabBarLabelStyle: styles.tabLabel
-                }} name="Home" component={Home} />
+                }} name="Home" component={HomeStackScreen} />
                 <Tab.Screen options={{
                     tabBarLabelStyle: styles.tabLabel
                 }} name="Discover" component={Discover} />
                 <Tab.Screen options={{
-                    tabBarBadge: 3,
                     tabBarLabelStyle: styles.tabLabel
                 }} name="Watchlist" component={Watchlist} />
                 <Tab.Screen options={{

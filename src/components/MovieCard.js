@@ -1,24 +1,46 @@
 import { useNavigation } from '@react-navigation/core';
 import React from 'react'
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Image, Pressable, StyleSheet, Text, TouchableWithoutFeedback, View, Alert, Platform  } from 'react-native'
 import Icon from 'react-native-vector-icons/Feather';
 
 function MovieCard({movie}) {
     const navigator = useNavigation();
 
+    const alert = (movieName) => {
+        Alert.alert(
+            "Success",
+            `${movieName} has been added to wishlist`,
+            [
+                {
+                    text: 'Ok',
+                    cancelable: true,
+                },
+                {
+                    text: 'Wishlist',
+                    onPress: () => navigator.navigate('Watchlist')
+                }
+            ]
+        )
+    }
+
     return (
-        <View style={styles.card}>
-            <Image style={styles.poster} source={{uri: `https://image.tmdb.org/t/p/w342${movie.poster_path}`}} />
-            <Pressable style={styles.add} onPress={() => navigator.navigate('Watchlist')}>
-                <Icon style={styles.icon} name="plus" size={19} color='orange' />
-            </Pressable>
-            <Text 
-                ellipsizeMode='tail' 
-                numberOfLines={2} 
-                style={styles.movieName}>
-                    {movie.title}
-            </Text>
-        </View>
+        <TouchableWithoutFeedback onPress={() => navigator.navigate('MovieDetails',{
+            movie
+        })}>
+            <View style={styles.card}>
+                <Image style={styles.poster} source={{uri: `https://image.tmdb.org/t/p/w342${movie.poster_path}`}} />
+                <Pressable style={styles.add} onPress={() => alert(movie.title)}>
+                    <Icon style={styles.icon} name="plus" size={19} color='orange' />
+                </Pressable>
+                <Text 
+                    ellipsizeMode='tail' 
+                    numberOfLines={2} 
+                    style={styles.movieName}>
+                        {movie.title}
+                </Text>
+            </View>
+        </TouchableWithoutFeedback>
+        
     )
 }
 
