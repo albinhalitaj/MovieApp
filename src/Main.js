@@ -1,37 +1,43 @@
-import React, { useState, useEffect } from 'react'
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import {createNativeStackNavigator } from '@react-navigation/native-stack'
-import Icon from 'react-native-vector-icons/Feather';
-import Home from './screens/Home';
-import Discover from './screens/Discover';
-import Watchlist from './screens/Watchlist';
-import Settings from './screens/Settings';
-import { StyleSheet } from 'react-native';
-import { ThemeContext } from './utils/ThemeManager';
-import MovieDetails from './screens/MovieDetails';
-import ViewAll from './screens/ViewAll';
-import Loader from './components/Loader';
+import React, { useContext, useEffect } from 'react'
+import { NavigationContainer } from '@react-navigation/native'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import Icon from 'react-native-vector-icons/Feather'
+import Discover from './screens/Discover'
+import Watchlist from './screens/Watchlist'
+import Settings from './screens/Settings'
+import { StyleSheet } from 'react-native'
+import { ThemeContext } from './utils/ThemeManager'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useDispatch } from 'react-redux'
+import { setFavoriteMovies } from './redux/actions'
+import { Color } from './constants/Color'
+import HomeStackScreen from './screens/HomeStack'
 
-
-const Tab = createBottomTabNavigator();
-
-const HomeStack = createNativeStackNavigator();
-
-function HomeStackScreen() {
-    return (
-        <HomeStack.Navigator>
-            <HomeStack.Screen name="Splash" component={Loader} options={{headerShown: false}} />
-            <HomeStack.Screen name="Main" component={Home} options={{headerShown: false}} />
-            <HomeStack.Screen name="ViewAll" component={ViewAll} options={{headerShown: false}} />
-            <HomeStack.Screen name="MovieDetails" component={MovieDetails} options={{headerShown: false}} />
-        </HomeStack.Navigator>
-    )
-}
+const Tab = createBottomTabNavigator()
 
 function Main() {
 
-    const {theme} = React.useContext(ThemeContext)
+    const {theme} = useContext(ThemeContext)
+
+    const dispatch = useDispatch();
+
+    const setWatchList = async () => {
+        const favorites =  await AsyncStorage.getItem("watchlist")
+        if (favorites === undefined || favorites === null || favorites.length === 0) {
+            AsyncStorage.setItem("watchlist",JSON.stringify([]))
+        }
+    }
+
+    const getWatchlist = async () => {
+        const movies =  await AsyncStorage.getItem("watchlist")
+        dispatch(setFavoriteMovies(JSON.parse(movies)))
+    }
+
+    useEffect(() => {
+        setWatchList()
+        getWatchlist()
+    }, [])
+    
 
     return (
         <NavigationContainer>
@@ -49,15 +55,15 @@ function Main() {
                     } else {
                         iconName = 'list'
                     }
-                    return <Icon name={iconName} size={size} color={color} />;
+                    return <Icon name={iconName} size={size} color={color} />
                 },
-                tabBarActiveTintColor: theme === 'dark' ? 'white' : 'red',
+                tabBarActiveTintColor: theme === 'dark' ? 'white' : Color.darkGray,
                 tabBarInactiveTintColor: 'gray',
                 tabBarStyle: [
                     {
                     "display": "flex",
-                    "backgroundColor": theme === 'dark' ? '#181818' : 'white',
-                    "borderTopColor": theme === 'dark' ? '#181818' : 'white',
+                    "backgroundColor": theme === 'dark' ? '#181818' : Color.light,
+                    "borderTopColor": theme === 'dark' ? '#181818' : Color.light,
                     "height": 60
                     },
                     null
@@ -68,10 +74,12 @@ function Main() {
                     tabBarLabelStyle: styles.tabLabel
                 }} name="Home" component={HomeStackScreen} />
                 <Tab.Screen options={{
-                    tabBarLabelStyle: styles.tabLabel
+                    tabBarLabelStyle: styles.tabLabel,
+                    unmountOnBlur: true
                 }} name="Discover" component={Discover} />
                 <Tab.Screen options={{
-                    tabBarLabelStyle: styles.tabLabel
+                    tabBarLabelStyle: styles.tabLabel,
+                    tabBarBadgeStyle: {color: Color.lightGray,backgroundColor: 'grey'}
                 }} name="Watchlist" component={Watchlist} />
                 <Tab.Screen options={{
                     tabBarLabelStyle: styles.tabLabel
@@ -85,7 +93,7 @@ const styles = StyleSheet.create({
     tabLabel: {
         fontSize: 12,
         marginBottom: 10,
-        fontFamily: 'Bahnschrift-Regular'
+        fontFamily: 'Bahnschrift-Regular',
     }
 })
 

@@ -1,35 +1,31 @@
-import React, { useState, useEffect } from 'react'
-import { StyleSheet, View, Text, Switch } from 'react-native'
+import React from 'react'
+import { StyleSheet, View, Text, Animated, Platform } from 'react-native'
 import Header from '../components/Header'
 import { ThemeContext } from '../utils/ThemeManager'
+import Icon from 'react-native-vector-icons/Feather';
+import { Color } from '../constants/Color';
 
 function Settings() {
 
     const {theme, changeTheme} = React.useContext(ThemeContext)
-    const [value, setValue] = useState(true);
 
     const isDark = theme === 'dark' ? true : false;
 
-    const toggleTheme = () => {
-        changeTheme()
-        theme === 'dark' ? setValue(false) : setValue(true)
-    }
-
-    useEffect(() => {
-        theme === 'dark' ? setValue(true) : setValue(false)
-    }, []);
-    
-
     return (
-        <View style={styles(isDark).containerdark}>
+        <View style={styles(isDark).container}>
             <Header name="Settings" icon='settings' />
-            <View style={styles(isDark).list}>
-                <Text style={styles(isDark).text}>Dark mode: {theme === 'dark' ? 'on' : 'off'}</Text>
-                <Switch style={styles.switch} value={value} onValueChange={toggleTheme} />
+            <View style={{marginTop: 40}}>
+                <Text style={styles(isDark).title}>Apperance</Text>
+                <Animated.View style={styles(isDark).list}>
+                    <Text style={styles(isDark).text}>Dark mode: {theme === 'dark' ? 'on' : 'off'}</Text>
+                    <Icon onPress={changeTheme} style={styles(isDark).icon} name={isDark ? 'sun' : 'moon'} size={22} color={isDark ? Color.light : Color.dark} />
+                </Animated.View>
             </View>
-            <Text style={{color: 'white',marginTop: 20}}>Privacy</Text>
-            <View style={styles(isDark).list}>
-                <Text style={styles(isDark).text}>Read Privacy & Legal</Text>
+            <View style={{marginTop: 40}}>
+                <Text style={styles(isDark).title}>Privacy</Text>
+                <View style={styles(isDark).list}>
+                    <Text style={styles(isDark).text}>Read Privacy & Legal</Text>
+                </View>
             </View>
             <Text style={styles(isDark).version}>Version 1.0.0</Text>
         </View>
@@ -37,29 +33,34 @@ function Settings() {
 }
 
 const styles = (isDark) => StyleSheet.create({
-    containerdark: {
-        backgroundColor: isDark ? '#181818' : '#d1d5db',
+    container: {
+        backgroundColor: isDark ? Color.dark : Color.light,
         height: '100%'
     },
-    containerlight: {
-        backgroundColor: '#d1d5db',
-        height: '100%',
+    title: {
+        color: isDark ? Color.light : Color.dark,
+        fontFamily: 'Bahnschrift-Regular',
+        fontSize: 15,
+        marginLeft: 20,
+        marginBottom: 10
     },
     list: {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 40,
         width: 'auto',
         height: 50,
-        backgroundColor: isDark ? '#373737' : '#e5e7eb'
+        backgroundColor: isDark ? Color.darkGray : Color.lightGray,
+        borderRadius: 5,
+        marginLeft: Platform.OS === 'android' ? 20 : 10,
+        marginRight: Platform.OS === 'android' ? 20 : 10
     },
     text: {
         paddingTop: 13,
         paddingLeft: 20,
         fontSize: 17,
         fontFamily: 'Bahnschrift-Regular',
-        color: isDark ? 'white' : '#1f2937'
+        color: isDark ? Color.light : '#1f2937'
     },
     switch: {
         marginRight: 10
@@ -69,6 +70,10 @@ const styles = (isDark) => StyleSheet.create({
         color: 'gray',
         textAlign: 'center',
         marginTop: 5
+    },
+    icon: {
+        paddingTop: 12,
+        paddingRight: 25 
     }
 })
 

@@ -1,76 +1,78 @@
-import React, { useState, useEffect } from 'react'
-import { StyleSheet,View, TextInput, Text } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react'
+import { StyleSheet,View, TextInput, Text, ActivityIndicator } from 'react-native'
 import Icon from 'react-native-vector-icons/Feather';
 import DiscoverList from '../components/DiscoverList';
 import Header from '../components/Header'
-import {getNowPlaying} from '../redux/actions'
 import {useSelector} from 'react-redux'
+import { ThemeContext } from '../utils/ThemeManager';
+import { Color } from '../constants/Color';
+import { API_KEY, API_SEARCH, API_URL } from '../constants/api';
 
 
 function Discover() {
-    const [discoverMovies, setDiscoverMovies] = useState([])
-    const [searchInput, setSearchInput] = useState('')
-    const [isLoading, setIsLoading] = useState(true)
-
-    const { nowPlayingMovies } = useSelector(state => state.appReducer)
     
+    const [movies, setMovies] = useState([]);
+    const [query, setQuery] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+
+    const {theme} = useContext(ThemeContext)
+
+    const {nowPlayingMovies} = useSelector(state => state.appReducer)
+
     const search = (query) => {
-        fetch(`https://api.themoviedb.org/3/search/movie?api_key=88e25c44663a2b555750d84d2d4dba2e&language=en-US&query=${query}&page=1&include_adult=false`)
-        .then((resp) => resp.json())
-        .then(data => {
-            console.log("searchingg")
-            setDiscoverMovies(data.results)
-            console.log("results for " + searchInput)
-            console.log(discoverMovies)
-        })
-        .catch(err => console.log(err))
-        .finally(() => setIsLoading(false))
+        if (query.length > 2) {
+            fetch(`${API_SEARCH}?api_key=${API_KEY}&language=en-US&query=${query}&page=1&include_adult=false`)
+            .then(data => data.json())
+            .then(moviesData => {
+                setMovies(moviesData.results)
+            })
+            .catch(err => console.log(err))
+            .finally(() => setIsLoading(false))
+        }
     }
 
     useEffect(() => {
-        if (discoverMovies.length === 0) {
-            setDiscoverMovies(nowPlayingMovies)       
-        }
-        setIsLoading(false)
-    }, [discoverMovies])
+       if (movies.length === 0) {
+         setMovies(nowPlayingMovies)  
+       } 
+    }, []);
+    
 
     return (
-        <View style={styles.container}>
+        <View style={styles(theme).container}>
             <Header name="Discover" />
             <View>
-                <Icon style={styles.icon} name='search' size={20} color="white" />
-                <TextInput value={searchInput} onSubmitEditing={() => search(searchInput)} onChangeText={text => setSearchInput(text)} style={styles.input} 
-                placeholder="Search Here" placeholderTextColor="white" />
+                <Icon style={styles(theme).icon} name='search' size={20} color={theme === 'dark' ? 'white' : Color.darkGray} />
+                <TextInput value={query} onSubmitEditing={() => search(query)} onChangeText={text => setQuery(text)} style={styles(theme).input} 
+                placeholder="Search" placeholderTextColor={theme === 'dark' ? 'white' : Color.darkGray} />
             </View>
             {
-                    isLoading ? <Text style={{color: 'white'}}>Loading...</Text> : (  
-                    <View>
-                        {
-                            discoverMovies &&
-                            <DiscoverList movies={discoverMovies} />
-                        }
-                    </View>
+                movies.length > 0 ? 
+                <DiscoverList movies={movies} /> : (
+                    isLoading ? <ActivityIndicator style={{marginTop: 20}} size="large" /> :
+                    <Text style={styles(theme).noResults}>No Results found</Text>
                 )
             }
         </View>
     )
+    
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
     container: {
         height: '100%',
-        backgroundColor: '#181818',
+        backgroundColor: theme === 'dark' ? Color.dark : Color.light,
     },
     input: {
-        borderColor: '#373737',
-        backgroundColor: '#373737',
+        borderColor: theme === 'dark' ? '#373737' : Color.lightGray,
+        backgroundColor: theme === 'dark' ? '#373737' : Color.lightGray,
         borderWidth: 1,
         borderRadius: 10,
         width: 350,
         marginLeft: 20,
         height: 40,
         marginTop: 10,
-        color: 'white',
+        color: theme === 'dark' ? 'white' : Color.darkGray,
         fontWeight: 'bold',
         paddingLeft: 50,
         fontFamily: 'Bahnschrift-Regular'
@@ -80,6 +82,11 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginLeft: 35,
         zIndex: 1
+    },
+    noResults: {
+        color: theme === 'dark' ? "#008577" : Color.darkGray,
+        marginTop: 40,
+        textAlign: 'center'
     }
 })
 

@@ -1,41 +1,51 @@
 import { useNavigation } from '@react-navigation/core';
-import React from 'react'
-import { Image, Pressable, StyleSheet, Text, TouchableWithoutFeedback, View, Alert, Platform  } from 'react-native'
+import React, { useContext } from 'react'
+import { Image, Pressable, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native'
 import Icon from 'react-native-vector-icons/Feather';
+import { Color } from '../constants/Color';
+import { ThemeContext } from '../utils/ThemeManager';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import {useSelector, useDispatch} from 'react-redux'
+import {setFavoriteMovies} from '../redux/actions'
+
 
 function MovieCard({movie}) {
     const navigator = useNavigation();
+    const {theme} = useContext(ThemeContext)
 
-    const alert = (movieName) => {
-        Alert.alert(
-            "Success",
-            `${movieName} has been added to wishlist`,
-            [
-                {
-                    text: 'Ok',
-                    cancelable: true,
-                },
-                {
-                    text: 'Wishlist',
-                    onPress: () => navigator.navigate('Watchlist')
-                }
-            ]
-        )
+    const {favoriteMovies} = useSelector(state => state.appReducer)
+
+    const dispatch = useDispatch()
+
+    const handleOnPress = async () => {
+        let favorites = favoriteMovies
+        if  (favorites === null){
+            favorites = []
+        }
+        if (isFavorited) {
+            favorites = favorites.filter((mov) => mov.id !== movie.id)
+        }else{
+            favorites.push(movie)
+        }
+        await AsyncStorage.setItem("watchlist",JSON.stringify(favorites))
+        dispatch(setFavoriteMovies(favorites))
     }
 
+    const isFavorited = favoriteMovies != null ? favoriteMovies.some(mov => mov.id === movie.id) : false
+    
     return (
         <TouchableWithoutFeedback onPress={() => navigator.navigate('MovieDetails',{
             movie
         })}>
-            <View style={styles.card}>
-                <Image style={styles.poster} source={{uri: `https://image.tmdb.org/t/p/w342${movie.poster_path}`}} />
-                <Pressable style={styles.add} onPress={() => alert(movie.title)}>
-                    <Icon style={styles.icon} name="plus" size={19} color='orange' />
+            <View style={styles(theme).card}>
+                <Image style={styles(theme).poster} source={{uri: `https://image.tmdb.org/t/p/w342${movie.poster_path}`}} />
+                <Pressable style={styles(theme).add} onPress={handleOnPress}>
+                    <Icon style={styles(theme).icon} name={isFavorited ? 'check' : 'plus'} size={19} color='orange' />
                 </Pressable>
                 <Text 
                     ellipsizeMode='tail' 
                     numberOfLines={2} 
-                    style={styles.movieName}>
+                    style={styles(theme).movieName}>
                         {movie.title}
                 </Text>
             </View>
@@ -44,7 +54,7 @@ function MovieCard({movie}) {
     )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
     card: {
         marginLeft: 0,
         marginTop: 10,
@@ -58,7 +68,7 @@ const styles = StyleSheet.create({
     movieName: {
         width: 100,
         height: 35,
-        color: 'white',
+        color: theme === 'dark' ? Color.light : Color.dark,
         fontFamily: 'Bahnschrift-Regular',
         marginTop: 10,
         marginLeft: 5

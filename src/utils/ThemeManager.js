@@ -42,7 +42,6 @@ export const ThemeProvider = ({children}) => {
         .catch(err => {
             console.log(err)
         }) 
-    
     }, []);
     
 

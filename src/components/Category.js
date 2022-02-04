@@ -1,30 +1,46 @@
 import { useNavigation } from '@react-navigation/core'
-import React from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import React, { useContext } from 'react'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Color } from '../constants/Color';
+import { ThemeContext } from '../utils/ThemeManager';
 
 function Category({name}) {
     const navigation = useNavigation();
 
+    const {theme} = useContext(ThemeContext)
+
+    const genre = () => {
+        if (name === 'Up Coming') {
+            return 'upcoming'
+        } else if (name === 'Top Rated'){
+            return 'top_rated'
+        } else {
+            return 'now_playing'
+        }
+    }
+    
     return (
-        <View style={styles.category}>
-            <Text style={styles.categoryName}>
+        <View style={styles(theme).category}>
+            <Text style={styles(theme).categoryName}>
                 {name}
             </Text>
-            <Pressable onPress={() => navigation.navigate('ViewAll')}>
-                <Text style={styles.seeAll}>See all</Text>   
-            </Pressable>
+            <TouchableOpacity onPress={() => navigation.navigate('ViewAll',{
+                genre: genre()
+            })}>
+                <Text style={styles(theme).seeAll}>See all</Text>   
+            </TouchableOpacity>
         </View>
     )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
     category: {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
     seeAll: {
-        color: 'orange',
+        color: theme === 'dark' ? Color.orange : Color.dark,
         marginRight: 10,
         width: 55,
         paddingLeft: 7,
@@ -37,7 +53,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Bahnschrift-Regular'
     },
     categoryName: {
-        color: 'white',
+        color: theme === 'dark' ? Color.lightGray : Color.dark,
         textTransform: 'uppercase',
         fontFamily: 'Bahnschrift-Regular',
         marginLeft: 30,

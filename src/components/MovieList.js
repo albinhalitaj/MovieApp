@@ -1,10 +1,14 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { StyleSheet, View, ScrollView } from 'react-native'
 import MovieCard from './MovieCard'
 import Line from './Line'
 import Category from './Category';
+import { ThemeContext } from '../utils/ThemeManager';
+import { Color } from '../constants/Color';
 
 function MovieList({movies,category}) {
+
+    const {theme} = useContext(ThemeContext)
 
     const renderLine = () => {
         if(category === 'Up Coming' || category === 'Top Rated') {
@@ -18,7 +22,7 @@ function MovieList({movies,category}) {
         <View>
             <Category name={category} />
             {renderLine()}
-            <ScrollView style={styles.scrollView} horizontal={true}>
+            <ScrollView style={styles(theme).scrollView} horizontal={true} showsHorizontalScrollIndicator={false}>
                 <View style={{flexDirection: 'row'}}>
                 {
                     movies.map((movie) => {
@@ -29,12 +33,12 @@ function MovieList({movies,category}) {
                 }
                 </View>
             </ScrollView>
-            <View style={styles.line}></View>
+            <View style={styles(theme).line}></View>
         </View>
     )
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
     scrollView: {
         marginTop: 10,
         maxHeight: 230,
@@ -43,7 +47,7 @@ const styles = StyleSheet.create({
     line: {
         width: '100%',
         height: 1,
-        backgroundColor: '#373737'
+        backgroundColor: theme === 'dark' ? '#373737' : Color.darkGray
     }
 })
 
